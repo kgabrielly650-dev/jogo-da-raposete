@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Raposa</title>
+    <style>
+        * { padding: 0; margin: 0; box-sizing: border-box; }
+        body {
+            display: flex; align-items: center; justify-content: center;
+            height: 100vh; background-color: #2c3e50; font-family: Arial;
+        }
+        .container { text-align: center; color: white; }
+        .placar { font-size: 30px; margin-bottom: 10px; }
+        
+        #jogo {
+            width: 600px; height: 250px; border-bottom: 5px solid #ecf0f1;
+            background-image: url('https://img.freepik.com/vetores-premium/fundo-de-pixel-art-com-paisagem-da-cidade-a-noite_1012174-12.jpg');
+            background-size: cover; position: relative; overflow: hidden;
+        }
+
+        #personagem {
+            width: 60px; height: 60px; position: absolute; bottom: 0; left: 50px;
+            background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/37.png');
+            background-size: contain; background-repeat: no-repeat;
+        }
+
+        #obstaculo {
+            width: 60px; height: 60px; position: absolute; bottom: 0; right: -60px;
+            background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png');
+            background-size: contain; background-repeat: no-repeat;
+        }
+
+        .animar-pulo { animation: pulo 0.5s ease-out; }
+        @keyframes pulo {
+            0% { bottom: 0; }
+            40% { bottom: 140px; }
+            60% { bottom: 140px; }
+            100% { bottom: 0; }
+        }
+    </style>
+</head>
+<body onclick="fazerPular()">
+
+    <div class="container">
+        <h1>Jogo da Raposa</h1>
+        <div class="placar">Pontos: <span id="score">0</span></div>
+        <div id="jogo">
+            <div id="personagem"></div>
+            <div id="obstaculo"></div>
+        </div>
+    </div>
+
+    <script>
+        const personagem = document.getElementById("personagem");
+        const obstaculo = document.getElementById("obstaculo");
+        const scoreElement = document.getElementById("score");
+
+        let score = 0;
+        let velocidade = 5;
+        let gameAtivo = true;
+
+        function fazerPular() {
+            if (personagem && !personagem.classList.contains("animar-pulo") && gameAtivo) {
+                personagem.classList.add("animar-pulo");
+                setTimeout(() => { personagem.classList.remove("animar-pulo"); }, 500);
+            }
+        }
+
+        function loop() {
+            if (!gameAtivo) return;
+
+            let rightPos = parseInt(window.getComputedStyle(obstaculo).getPropertyValue("right")) || 0;
+
+            if (rightPos > 660) {
+                obstaculo.style.right = "-60px";
+                score++;
+                scoreElement.innerText = score;
+                velocidade += 0.3;
+            } else {
+                obstaculo.style.right = (rightPos + velocidade) + "px";
+            }
+
+            let topoPersonagem = parseInt(window.getComputedStyle(personagem).getPropertyValue("top"));
+            let esquerdaObstaculo = obstaculo.offsetLeft;
+
+            if (esquerdaObstaculo < 90 && esquerdaObstaculo > 50 && topoPersonagem >= 190) {
+                gameAtivo = false;
+                alert("Fim de Jogo! Pontos: " + score);
+                location.reload();
+            }
+            requestAnimationFrame(loop);
+        }
+
+        window.onload = loop;
+    </script>
+</body>
+</html>
